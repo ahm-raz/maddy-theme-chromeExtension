@@ -49,8 +49,6 @@ the downloadable extension zip.
 
 ## Deploy to Vercel
 
-### Option A — deploy the app folder (recommended)
-
 1. Push this repository to GitHub.
 2. In Vercel, choose **Add New → Project** and import the repository.
 3. Set **Root Directory** to `maddy-new-tab`.
@@ -60,21 +58,7 @@ the downloadable extension zip.
    - Install Command: `npm install` (or `npm ci`)
 5. Click **Deploy**. No environment variables are needed.
 
-### Option B — deploy from the repository root
-
-A root [`vercel.json`](../vercel.json) is already included, pointing at the app
-folder:
-
-```json
-{
-  "framework": "vite",
-  "installCommand": "npm --prefix maddy-new-tab ci",
-  "buildCommand": "npm --prefix maddy-new-tab run build",
-  "outputDirectory": "maddy-new-tab/dist"
-}
-```
-
-Import the repository and deploy with no dashboard overrides. From the CLI:
+From the CLI (run inside `maddy-new-tab`):
 
 ```sh
 npm i -g vercel

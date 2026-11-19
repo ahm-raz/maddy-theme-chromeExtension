@@ -1,7 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
-  "installCommand": "npm --prefix maddy-new-tab ci",
-  "buildCommand": "npm --prefix maddy-new-tab run build",
-  "outputDirectory": "maddy-new-tab/dist"
-}

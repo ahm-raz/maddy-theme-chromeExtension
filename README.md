@@ -106,8 +106,8 @@ npm install
 npm run dev
 ```
 
-To deploy, import the repository in Vercel and either set the **Root Directory**
-to `maddy-new-tab`, or use the included root [`vercel.json`](vercel.json) as-is.
+To deploy, import the repository in Vercel and set the **Root Directory** to
+`maddy-new-tab`. Vercel detects Vite and needs no other settings.
 
 ## Repository layout
 
@@ -121,7 +121,6 @@ extension/            The shipped extension — this is what gets zipped
   fonts/Virgil.woff2
   fonts/OFL.txt
   icons/icon16.png, icon32.png, icon48.png, icon128.png
-newTabByClaude.html   Original single-file version, kept for reference
 maddy-new-tab/        Landing page (Vite + React) for the extension
 tools/                Build/test helpers (not part of the extension)
   extract.mjs         First-pass split of the single-file page + font decode
@@ -132,9 +131,10 @@ PRIVACY_POLICY.md
 STORE_LISTING.md      Store copy, short description, permission justifications
 TESTING.md            Verified test checklist and results
 PUBLISHING.md         Step-by-step Chrome Web Store submission guide
-maddy-new-tab-1.0.0.zip   Store-ready package
-vercel.json           Vercel config for deploying the site from the repo root
 ```
+
+The store-ready zip is published at
+`maddy-new-tab/public/downloads/maddy-new-tab-1.0.0.zip`.
 
 ## Packaging for the Chrome Web Store
 
