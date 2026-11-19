@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Maddy New Tab</title>
+  <rect x="16" y="16" width="96" height="96" rx="22.56" fill="#12141a"/>
+  <path d="M37.120000000000005 68.80000000000001 L56.32 87.03999999999999 L88 49.599999999999994" fill="none" stroke="#8ab4f8" stroke-width="11.04" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="95.68" cy="31.36" r="11.04" fill="#12141a"/>
+  <circle cx="95.68" cy="31.36" r="7.20" fill="#f28b82"/>
+</svg>

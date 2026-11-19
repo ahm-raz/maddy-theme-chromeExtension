@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New Tab</title>
+<link rel="stylesheet" href="newtab.css">
+</head>
+<body class="no-anim">
+
+<div id="desk"><div class="gridlines" id="gridlines"></div><div class="cell-hl" id="cellHl" hidden></div><div id="deskTiles"></div></div>
+<div id="dock"></div>
+
+<div id="hero" hidden>
+  <div id="clock"></div>
+  <div id="greet"></div>
+  <div id="date"></div>
+  <form id="heroSearch" role="search">
+    <i data-i="search" data-s="18"></i>
+    <input id="heroInput" autocomplete="off" spellcheck="false" aria-label="Search the web or type a URL">
+  </form>
+</div>
+
+<div class="top-right" id="topRight">
+  <button class="pill" id="todoToggle" title="Open todo list (T)"><i data-i="check-square" data-s="16"></i><span>Todo</span><span class="badge" id="todoBadge"></span></button>
+  <button class="pill" id="dlToggle" title="Open deadlines (D)"><i data-i="alarm-clock" data-s="16"></i><span>Deadlines</span><span class="badge urgent" id="dlBadge"></span></button>
+</div>
+
+<div class="fab" id="fab" title="Drag to move">
+  <button id="fabTask" title="New task (T)" aria-label="New task"><i data-i="list-plus" data-s="20"></i></button>
+  <button id="fabDeadline" title="New deadline (D)" aria-label="New deadline"><i data-i="alarm-clock" data-s="20"></i></button>
+  <button id="fabShortcut" title="New shortcut (S)" aria-label="New shortcut"><i data-i="link" data-s="20"></i></button>
+  <button id="fabGroup" title="New group (G)" aria-label="New group"><i data-i="folder-plus" data-s="20"></i></button>
+  <span class="sep"></span>
+  <button id="fabSearch" title="Search (/)" aria-label="Search"><i data-i="search" data-s="20"></i></button>
+  <button id="fabSettings" title="Settings (,)" aria-label="Settings"><i data-i="sliders" data-s="20"></i></button>
+  <button id="fabHelp" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts"><i data-i="keyboard" data-s="20"></i></button>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-label="Group">
+    <div class="card-head">
+      <input class="card-name" id="cardName" maxlength="30" placeholder="Group name" spellcheck="false" autocomplete="off">
+      <button class="icon-btn" id="cardClose" title="Close (Esc)" aria-label="Close"><i data-i="x" data-s="16"></i></button>
+    </div>
+    <div id="cardGrid"></div>
+    <div class="card-foot">
+      <span>Drag an icon outside this card to put it on the page</span>
+      <button class="link-btn danger" id="removeGroup" title="Icons in this group move back to the page">Remove group</button>
+    </div>
+  </div>
+</div>
+
+<!-- Todo sidebar -->
+<aside class="panel" id="todoPanel" aria-label="Todo list" inert>
+  <header>
+    <h2><i data-i="check-square" data-s="18"></i>Todo</h2>
+    <button class="icon-btn" id="todoClose" title="Collapse (Esc)" aria-label="Collapse"><i data-i="chevron-right" data-s="18"></i></button>
+  </header>
+  <form id="todoForm" class="task-form">
+    <input class="field" id="todoInput" placeholder="Add a task and press Enter" autocomplete="off" maxlength="200">
+    <button type="button" class="flag-toggle" id="todoFlag" aria-pressed="false" title="Mark as priority"></button>
+    <button type="submit" class="flag-toggle add" title="Add task (Enter)" aria-label="Add task"><i data-i="plus" data-s="18"></i></button>
+  </form>
+  <div class="panelBody" id="todoBody"></div>
+  <footer><span id="todoCount"></span>
+    <button class="link-btn danger clear-btn" id="clearDone"><i data-i="trash" data-s="14"></i>Clear completed</button></footer>
+</aside>
+
+<!-- Deadlines sidebar (same shell as Todo) -->
+<aside class="panel" id="dlPanel" aria-label="Deadlines" inert>
+  <header>
+    <h2><i class="ttl-dl" data-i="alarm-clock" data-s="18"></i>Deadlines</h2>
+    <button class="icon-btn" id="dlClose" title="Collapse (Esc)" aria-label="Collapse"><i data-i="chevron-right" data-s="18"></i></button>
+  </header>
+  <form id="dlForm" class="task-form">
+    <input class="field" id="dlInput" placeholder="Deadline, e.g. report friday 5pm" autocomplete="off" maxlength="200">
+    <div class="parse" id="dlHint" aria-live="polite"></div>
+    <div class="dl-row">
+      <input class="field" id="dlDue" type="datetime-local" aria-label="Due date and time">
+      <select class="field" id="dlRepeat" aria-label="Repeat">
+        <option value="none">No repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option>
+      </select>
+      <button type="submit" class="btn dl" title="Add deadline"><i data-i="plus" data-s="16"></i>Add</button>
+    </div>
+  </form>
+  <div class="panelBody" id="dlBody"></div>
+  <footer><span id="dlCount"></span>
+    <button class="link-btn danger clear-btn" id="dlClearDone"><i data-i="trash" data-s="14"></i>Clear completed</button></footer>
+</aside>
+
+<!-- Edit deadline -->
+<dialog id="dlDialog">
+  <form id="dlEditForm">
+    <h2>Edit deadline</h2>
+    <label>Title<input class="field" id="eText" required maxlength="200" autocomplete="off"></label>
+    <label>Due<input class="field" id="eDue" type="datetime-local" required></label>
+    <label>Repeat<select class="field" id="eRepeat"><option value="none">No repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+    <div class="actions"><span class="spacer"></span><button type="button" class="btn" id="eCancel">Cancel</button><button type="submit" class="btn dl">Save</button></div>
+  </form>
+</dialog>
+
+<!-- Shortcut editor -->
+<dialog id="editor">
+  <form id="editorForm">
+    <h2 id="editorTitle">Add shortcut</h2>
+    <label>Name<input class="field" id="fName" maxlength="40" autocomplete="off"></label>
+    <label>URL<input class="field" id="fUrl" required autocomplete="off" placeholder="example.com"></label>
+    <div class="actions"><button type="button" class="btn danger" id="fRemove">Remove</button><span class="spacer"></span>
+      <button type="button" class="btn" id="fCancel">Cancel</button><button type="submit" class="btn primary">Done</button></div>
+  </form>
+</dialog>
+
+<!-- Search / command palette -->
+<dialog id="palette"><input class="field" id="palInput" placeholder="Search shortcuts, tasks, deadlines — or the web" autocomplete="off"><ul id="palList"></ul></dialog>
+
+<!-- Keyboard help -->
+<dialog id="helpDialog">
+  <h2>Keyboard shortcuts</h2>
+  <div class="keys">
+    <span><kbd>T</kbd></span><span>New task (opens Todo)</span>
+    <span><kbd>D</kbd></span><span>New deadline (opens Deadlines)</span>
+    <span><kbd>S</kbd></span><span>New shortcut</span>
+    <span><kbd>G</kbd></span><span>New group</span>
+    <span><kbd>/</kbd> or <kbd>Ctrl</kbd>+<kbd>K</kbd></span><span>Search everything</span>
+    <span><kbd>1</kbd>–<kbd>9</kbd></span><span>Open shortcut by number</span>
+    <span><kbd>,</kbd></span><span>Settings</span>
+    <span><kbd>?</kbd></span><span>This help</span>
+    <span><kbd>Esc</kbd></span><span>Close panel / popup</span>
+  </div>
+  <div class="actions"><span class="spacer"></span><button class="btn primary" id="helpClose">Done</button></div>
+</dialog>
+
+<!-- Settings -->
+<dialog id="settingsDialog">
+  <h2>Welcome</h2>
+  <label class="set"><span>Your name</span><input class="field" id="sName" maxlength="24" placeholder="Optional" autocomplete="off" spellcheck="false"></label>
+  <label class="set"><span>Greeting</span><input type="checkbox" class="switch" id="sGreeting"></label>
+  <label class="set"><span>Clock</span><select class="field" id="sClock"><option value="off">Off</option><option value="12">12-hour</option><option value="24">24-hour</option></select></label>
+  <label class="set"><span>Date</span><input type="checkbox" class="switch" id="sDate"></label>
+  <label class="set"><span>Search bar</span><input type="checkbox" class="switch" id="sSearch"></label>
+  <label class="set"><span>Search engine</span><select class="field" id="sEngine"></select></label>
+
+  <h2>Look</h2>
+  <label class="set"><span>Font</span><select class="field" id="sFont"><option value="hand">Handwriting (Virgil)</option><option value="system">System</option></select></label>
+  <label class="set"><span>Theme</span><select class="field" id="sTheme"><option value="system">Match system</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
+  <div class="set"><span>Accent colour</span><div class="swatches" id="sAccent"></div></div>
+  <label class="set"><span>Shortcut names</span><input type="checkbox" class="switch" id="sLabels"></label>
+  <label class="set"><span>Number hints (1–9)</span><input type="checkbox" class="switch" id="sNumbers"></label>
+
+  <h2>Backup</h2>
+  <div class="actions" style="margin-top:0">
+    <button class="btn" id="exportBtn"><i data-i="download" data-s="16"></i>Export</button>
+    <button class="btn" id="importBtn"><i data-i="upload" data-s="16"></i>Import</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+    <span class="spacer"></span><button class="btn primary" id="settingsClose">Done</button>
+  </div>
+</dialog>
+
+<div class="hint" id="hint">Press <kbd>?</kbd> for shortcuts</div>
+<div class="toast" id="toast" hidden><span id="toastMsg"></span><button class="link-btn" id="toastUndo">Undo</button></div>
+
+<script src="newtab.js"></script>
+</body>
+</html>
