@@ -1,7 +1,188 @@
+import { useState } from 'react'
 import { site } from './config'
 import './App.css'
 
 const YEAR = new Date().getFullYear()
+
+const browsers = {
+  chrome: {
+    label: 'Chrome',
+    page: 'chrome://extensions',
+    devMode: 'Use the Developer mode switch in the top-right corner.',
+  },
+  edge: {
+    label: 'Edge',
+    page: 'edge://extensions',
+    devMode:
+      'Use the Developer mode switch in the left sidebar. In a narrow window, open the ☰ menu first.',
+  },
+  brave: {
+    label: 'Brave',
+    page: 'brave://extensions',
+    devMode: 'Use the Developer mode switch in the top-right corner.',
+  },
+}
+
+function detectBrowser() {
+  try {
+    if (navigator.brave) return 'brave'
+    if (/\bEdg\//.test(navigator.userAgent)) return 'edge'
+  } catch {
+    // Fall through to Chrome.
+  }
+  return 'chrome'
+}
+
+function CopyButton({ text }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = () => {
+    if (!navigator.clipboard) return
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1600)
+      })
+      .catch(() => {})
+  }
+
+  return (
+    <button type="button" className="copy-btn" onClick={copy}>
+      <span aria-live="polite">{copied ? 'Copied' : 'Copy'}</span>
+    </button>
+  )
+}
+
+function InstallGuide() {
+  const [browserKey, setBrowserKey] = useState(detectBrowser)
+  const browser = browsers[browserKey]
+  const folder = site.zipUrl.split('/').pop().replace(/\.zip$/, '')
+
+  return (
+    <div className="install-guide">
+      <p className="guide-label" id="browser-label">
+        Your browser
+      </p>
+      <div
+        className="browser-switch"
+        role="group"
+        aria-labelledby="browser-label"
+      >
+        {Object.entries(browsers).map(([key, b]) => (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={key === browserKey}
+            onClick={() => setBrowserKey(key)}
+          >
+            {b.label}
+          </button>
+        ))}
+      </div>
+
+      <ol className="steps">
+        <li>
+          <span className="step-n">1</span>
+          <div>
+            <strong>Download and unzip</strong>
+            <p>
+              <a href={site.zipUrl} download>
+                Download the .zip
+              </a>
+              , then unzip it. On Windows, right-click it and choose{' '}
+              <em>Extract All</em>; on a Mac, double-click it.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="step-n">2</span>
+          <div>
+            <strong>Put the folder somewhere permanent</strong>
+            <p>
+              Move the <code>{folder}</code> folder to a place you won’t
+              clean up, such as <em>Documents</em>. {browser.label} runs the
+              extension from this folder, so deleting or moving it removes
+              the extension.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="step-n">3</span>
+          <div>
+            <strong>Open the extensions page</strong>
+            <p>
+              Paste <code>{browser.page}</code>
+              <CopyButton text={browser.page} /> into the address bar and
+              press Enter. Websites can’t link to this page, so it has to be
+              typed or pasted.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="step-n">4</span>
+          <div>
+            <strong>Turn on Developer mode</strong>
+            <p>{browser.devMode}</p>
+          </div>
+        </li>
+        <li>
+          <span className="step-n">5</span>
+          <div>
+            <strong>Load the extension</strong>
+            <p>
+              Click <em>Load unpacked</em> and select the{' '}
+              <code>{folder}</code> folder, the one that directly contains{' '}
+              <code>manifest.json</code>. If you see another folder inside it,
+              go one level deeper.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span className="step-n">6</span>
+          <div>
+            <strong>Open a new tab</strong>
+            <p>
+              Press <code>Ctrl</code>+<code>T</code> (<code>⌘</code>+
+              <code>T</code> on a Mac). If {browser.label} asks whether you
+              meant to change your new tab page, keep the change.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div className="tips">
+        <h3>Good to know</h3>
+        <div>
+          <strong>Updating</strong>
+          <p>
+            Use <em>Export</em> in Maddy’s settings to save a backup first.
+            Then replace the files in the same folder with the new version and
+            click the reload ↻ icon on Maddy’s card in{' '}
+            <code>{browser.page}</code>. Keeping the same folder keeps your
+            shortcuts and todos.
+          </p>
+        </div>
+        <div>
+          <strong>Developer mode notice</strong>
+          <p>
+            {browser.label} may remind you that a developer-mode extension is
+            on. That only means it wasn’t installed from a store; it’s safe to
+            keep.
+          </p>
+        </div>
+        <div>
+          <strong>Removing it</strong>
+          <p>
+            Click <em>Remove</em> on Maddy’s card in{' '}
+            <code>{browser.page}</code>. This deletes your Maddy data, so
+            export a backup first if you want to keep it.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const iconPaths = {
   grid: (
@@ -386,8 +567,9 @@ function App() {
               One tab <span className="hand">from now.</span>
             </h2>
             <p className="section-lede">
-              Maddy New Tab opens with every new tab. Install it from the Chrome
-              Web Store when it is live, or load the packaged extension today.
+              {site.storeUrl
+                ? 'Maddy New Tab opens with every new tab. Add it from the Chrome Web Store, or load the packaged extension yourself.'
+                : 'Maddy New Tab opens with every new tab. Install it yourself from the zip in about a minute: no account, no store, nothing to sign up for.'}
             </p>
 
             <div className="cta-row">
@@ -419,52 +601,13 @@ function App() {
               )}
             </div>
 
-            {!site.storeUrl && (
-              <p className="note">
-                Chrome Web Store listing coming soon. The zip is version{' '}
-                {site.version} and works with Chrome 111+.
-              </p>
-            )}
+            <p className="note">
+              Version {site.version} · Chrome 111+, Edge and Brave on a
+              computer. Phone browsers don’t support extensions.
+            </p>
           </div>
 
-          <ol className="steps">
-            <li>
-              <span className="step-n">1</span>
-              <div>
-                <strong>Download and unzip</strong>
-                <p>
-                  Keep the unzipped folder (the one containing{' '}
-                  <code>manifest.json</code>) somewhere you can find it.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span className="step-n">2</span>
-              <div>
-                <strong>Open Chrome’s extensions page</strong>
-                <p>
-                  Go to <code>chrome://extensions</code>.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span className="step-n">3</span>
-              <div>
-                <strong>Turn on Developer mode</strong>
-                <p>Use the switch in the top-right corner.</p>
-              </div>
-            </li>
-            <li>
-              <span className="step-n">4</span>
-              <div>
-                <strong>Load the extension</strong>
-                <p>
-                  Choose <em>Load unpacked</em> and select the unzipped folder
-                  that contains <code>manifest.json</code>. Open a new tab.
-                </p>
-              </div>
-            </li>
-          </ol>
+          <InstallGuide />
         </section>
       </main>
 
